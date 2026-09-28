@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xray/V2Ray 10-Channel Config Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #111827;
+            --border-color: #1f2937;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --out-inbound-color: #10b981;
+            --out-outbound-color: #a855f7;
+            --out-routing-color: #06b6d4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        .grid-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input[type="number"], input[type="text"], textarea {
+            width: 100%;
+            background: #070a12;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: #fff;
+            padding: 12px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        textarea.code-box {
+            direction: ltr !important;
+            text-align: left !important;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: #070a12;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .tunnel-inputs {
+            display: none;
+        }
+
+        .tunnel-inputs.active {
+            display: block;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 45px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: "خروجی‌های استاندارد و تجمیع شده Xray";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-color);
+            padding: 0 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .output-box {
+            position: relative;
+        }
+
+        .box-inbound { border-top: 4px solid var(--out-inbound-color); }
+        .box-inbound .panel-title { color: var(--out-inbound-color); }
+        
+        .box-outbound { border-top: 4px solid var(--out-outbound-color); }
+        .box-outbound .panel-title { color: var(--out-outbound-color); }
+
+        .box-routing { border-top: 4px solid var(--out-routing-color); }
+        .box-routing .panel-title { color: var(--out-routing-color); }
+
+        .copy-btn {
+            position: absolute;
+            top: 75px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .copy-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ویرایشگر فوق‌پیشرفته کانفیگ تانل Xray (نسخه کامنت‌های ساختاری داخلی)</h1>
+        <p>فایل‌های مبدا را وارد کنید، مشخصات ۱۰ تانل مختلف را تنظیم کنید. هر بخش خروجی کامنت لوکیشنِ خودش را می‌گیرد.</p>
+    </header>
+
+    <div class="grid-section">
+        <div class="panel">
+            <div class="panel-title">۱. فایل‌های مبدا (JSON خام موجود روی سرور ایران)</div>
+            <div class="form-group">
+                <label>محتوای فایل 01_inbounds.json</label>
+                <textarea id="in_inbounds" class="code-box" rows="7" placeholder='{ "inbounds": [] }'></textarea>
+            </div>
+            <div class="form-group">
+                <label>محتوای فایل 02_outbounds.json</label>
+                <textarea id="in_outbounds" class="code-box" rows="7" placeholder='{ "outbounds": [] }'></textarea>
+            </div>
+            <div class="form-group">
+                <label>محتوای فایل 03_routing.json</label>
+                <textarea id="in_routing" class="code-box" rows="7" placeholder='{ "routing": { "rules": [] } }'></textarea>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">۲. مدیریت و مشخصات فنی تانل‌ها</div>
+            <div class="tabs-container" id="tabs_header"></div>
+            <div id="tabs_contents"></div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="grid-section">
+        <div class="panel output-box box-inbound">
+            <div class="panel-title">خروجی یکپارچه: 01_inbounds.json <span class="badge">سبز</span></div>
+            <button class="copy-btn" onclick="copyText('out_inbounds')">کپی کد</button>
+            <textarea id="out_inbounds" class="code-box" rows="18" readonly placeholder="{}"></textarea>
+        </div>
+
+        <div class="panel output-box box-outbound">
+            <div class="panel-title">خروجی یکپارچه: 02_outbounds.json <span class="badge">ارغوانی</span></div>
+            <button class="copy-btn" onclick="copyText('out_outbounds')">کپی کد</button>
+            <textarea id="out_outbounds" class="code-box" rows="18" readonly placeholder="{}"></textarea>
+        </div>
+    </div>
+
+    <div class="grid-section" style="grid-template-columns: 1fr;">
+        <div class="panel output-box box-routing">
+            <div class="panel-title">خروجی یکپارچه: 03_routing.json <span class="badge">فیروزه‌ای</span></div>
+            <button class="copy-btn" onclick="copyText('out_routing')">کپی کد</button>
+            <textarea id="out_routing" class="code-box" rows="15" readonly placeholder="{}"></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_SERVERS = 10;
+    const tabsHeader = document.getElementById('tabs_header');
+    const tabsContents = document.getElementById('tabs_contents');
+
+    for (let i = 1; i <= TOTAL_SERVERS; i++) {
+        const tabBtn = document.createElement('button');
+        tabBtn.className = `tab-btn ${i === 1 ? 'active' : ''}`;
+        tabBtn.innerText = `سرور ${i}`;
+        tabBtn.type = 'button';
+        tabBtn.onclick = () => switchTab(i);
+        tabBtn.id = `tab_btn_${i}`;
+        tabsHeader.appendChild(tabBtn);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = `tunnel-inputs ${i === 1 ? 'active' : ''}`;
+        contentDiv.id = `tunnel_inputs_${i}`;
+        contentDiv.innerHTML = `
+            <div class="form-group">
+                <label>نام سرور / ریجن ${i}:</label>
+                <input type="text" id="server_name_${i}" placeholder="مثلا: Server ${i}: turkey">
+            </div>
+            <div class="form-group">
+                <label>پورت مورد نظر جهت فوروارد در سرور ${i}:</label>
+                <input type="number" id="port_number_${i}" placeholder="مثلا: ${443 + i}">
+            </div>
+            <div class="form-group">
+                <label>فایل کانفیگ یا لینک تانل برای سرور ${i}:</label>
+                <textarea id="tunnel_config_${i}" class="code-box" rows="8" placeholder="لینک Vless/Vmess یا ساختار JSON اوتباند..."></textarea>
+            </div>
+        `;
+        tabsContents.appendChild(contentDiv);
+    }
+
+    const inInbounds = document.getElementById('in_inbounds');
+    const inOutbounds = document.getElementById('in_outbounds');
+    const inRouting = document.getElementById('in_routing');
+
+    const outInbounds = document.getElementById('out_inbounds');
+    const outOutbounds = document.getElementById('out_outbounds');
+    const outRouting = document.getElementById('out_routing');
+
+    [inInbounds, inOutbounds, inRouting].forEach(el => el.addEventListener('input', processConfigs));
+
+    for(let i = 1; i <= TOTAL_SERVERS; i++) {
+        document.getElementById(`server_name_${i}`).addEventListener('input', processConfigs);
+        document.getElementById(`port_number_${i}`).addEventListener('input', processConfigs);
+        document.getElementById(`tunnel_config_${i}`).addEventListener('input', processConfigs);
+    }
+
+    function switchTab(index) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tunnel-inputs').forEach(box => box.classList.remove('active'));
+        
+        document.getElementById(`tab_btn_${index}`).classList.add('active');
+        document.getElementById(`tunnel_inputs_${index}`).classList.add('active');
+    }
+
+    function processConfigs() {
+        let rawInboundObj = { "inbounds": [] };
+        let rawOutboundObj = { "outbounds": [] };
+        let rawRoutingObj = { "routing": { "rules": [] } };
+
+        try { if (inInbounds.value.trim()) { let p = JSON.parse(inInbounds.value.trim()); rawInboundObj = Array.isArray(p) ? { "inbounds": p } : (p.inbounds ? p : { "inbounds": [] }); } } catch(e) { outInbounds.value = "خطا در فرمت JSON ورودی 01_inbounds"; return; }
+        try { if (inOutbounds.value.trim()) { let p = JSON.parse(inOutbounds.value.trim()); rawOutboundObj = Array.isArray(p) ? { "outbounds": p } : (p.outbounds ? p : { "outbounds": [] }); } } catch(e) { outOutbounds.value = "خطا در فرمت JSON ورودی 02_outbounds"; return; }
+        try { if (inRouting.value.trim()) { let p = JSON.parse(inRouting.value.trim()); rawRoutingObj = p.routing ? p : (p.rules ? { "routing": p } : { "routing": { "rules": [] } }); } } catch(e) { outRouting.value = "خطا در فرمت JSON ورودی 03_routing"; return; }
+
+        let rootComments = {};
+
+        for (let i = 1; i <= TOTAL_SERVERS; i++) {
+            const port = parseInt(document.getElementById(`port_number_${i}`).value) || 0;
+            const name = document.getElementById(`server_name_${i}`).value.trim();
+            const configRaw = document.getElementById(`tunnel_config_${i}`).value.trim();
+            const socksPort = port + 1;
+
+            if (name) {
+                rootComments[`_comment_server_${i}`] = `Server ${i}: ${name}`;
+            }
+
+            if (port > 0) {
+                // الف) کامنت گذاری و ساخت اینباندها
+                let newDokodemo = {
+                    "tag": `inbound-${port}`,
+                    "listen": "0.0.0.0",
+                    "port": port,
+                    "protocol": "dokodemo-door",
+                    "settings": { "network": "tcp,udp", "followRedirect": false },
+                    "sniffing": { "enabled": true, "destOverride": ["http", "tls"] }
+                };
+                let newSocks = {
+                    "tag": `socks-${port}`,
+                    "port": socksPort,
+                    "listen": "127.0.0.1",
+                    "protocol": "mixed",
+                    "sniffing": { "enabled": true, "destOverride": ["http", "tls"] },
+                    "settings": { "auth": "noauth", "udp": true }
+                };
+
+                if (name) {
+                    newDokodemo = { [`_comment_server_${i}`]: `Server ${i}: ${name}`, ...newDokodemo };
+                    newSocks = { [`_comment_server_${i}`]: `Server ${i}: ${name} (Socks)`, ...newSocks };
+                }
+
+                rawInboundObj.inbounds = rawInboundObj.inbounds.filter(item => item.tag !== `inbound-${port}` && item.tag !== `socks-${port}`);
+                rawInboundObj.inbounds.push(newDokodemo, newSocks);
+
+                // ب) کامنت گذاری و ساخت اوتباندها
+                let extractedOutbound = parseTunnelConfig(configRaw, port);
+                if (extractedOutbound) {
+                    if (name) {
+                        extractedOutbound = { [`_comment_server_${i}`]: `Server ${i}: ${name}`, ...extractedOutbound };
+                    }
+                    rawOutboundObj.outbounds = rawOutboundObj.outbounds.filter(item => item.tag !== `tunnel-to-out-${port}`);
+                    rawOutboundObj.outbounds.push(extractedOutbound);
+                }
+
+                // ج) کامنت گذاری و ساخت قوانین روتینگ
+                if (!rawRoutingObj.routing) rawRoutingObj.routing = { "rules": [] };
+                if (!rawRoutingObj.routing.rules) rawRoutingObj.routing.rules = [];
+
+                let newRule = {
+                    "type": "field",
+                    "inboundTag": [`inbound-${port}`, `socks-${port}`],
+                    "outboundTag": `tunnel-to-out-${port}`
+                };
+
+                if (name) {
+                    newRule = { [`_comment_server_${i}`]: `Server ${i}: ${name}`, ...newRule };
+                }
+
+                rawRoutingObj.routing.rules = rawRoutingObj.routing.rules.filter(r => {
+                    if (!r.inboundTag) return true;
+                    return !(r.inboundTag.includes(`inbound-${port}`) || r.inboundTag.includes(`socks-${port}`));
+                });
+                rawRoutingObj.routing.rules.push(newRule);
+            }
+        }
+
+        outInbounds.value = JSON.stringify({ ...rootComments, ...rawInboundObj }, null, 2);
+        outOutbounds.value = JSON.stringify({ ...rootComments, ...rawOutboundObj }, null, 2);
+        outRouting.value = JSON.stringify({ ...rootComments, ...rawRoutingObj }, null, 2);
+    }
+
+    function parseTunnelConfig(rawInput, port) {
+        if (!rawInput.trim()) return null;
+        let result = null;
+        try {
+            let parsed = JSON.parse(rawInput);
+            if (parsed.outbounds && Array.isArray(parsed.outbounds)) parsed = parsed.outbounds[0];
+            if (Array.isArray(parsed)) parsed = parsed[0];
+            if (parsed && typeof parsed === 'object') result = { ...parsed };
+        } catch (e) {
+            const input = rawInput.trim();
+            if (input.startsWith("vless://") || input.startsWith("vmess://") || input.startsWith("ss://") || input.startsWith("trojan://")) {
+                result = convertLinkToOutbound(input);
+            }
+        }
+        if (result) {
+            result.tag = `tunnel-to-out-${port}`;
+            return result;
+        }
+        return null;
+    }
+
+    function convertLinkToOutbound(link) {
+        try {
+            if (link.startsWith("vless://") || link.startsWith("trojan://") || link.startsWith("ss://")) {
+                const url = new URL(link);
+                const protocol = link.split("://")[0];
+                const parts = url.pathname.split("@");
+                const address = url.hostname;
+                const port = parseInt(url.port);
+                const uuid = url.username || parts[0];
+                const searchParams = new URLSearchParams(url.search);
+                const security = searchParams.get("security") || "none";
+                const network = searchParams.get("type") || "tcp";
+
+                let settings = {};
+                if (protocol === "vless") {
+                    settings = { "vnext": [{ "address": address, "port": port, "users": [{ "id": uuid, "encryption": searchParams.get("encryption") || "none" }] }] };
+                } else if (protocol === "trojan") {
+                    settings = { "servers": [{ "address": address, "port": port, "password": uuid }] };
+                }
+
+                let streamSettings = { "network": network, "security": security };
+
+                if (security === "tls" || security === "reality") {
+                    streamSettings[`${security}Settings`] = { "serverName": searchParams.get("sni"), "fingerprint": searchParams.get("fp") || "chrome" };
+                    if(security === "reality") {
+                        streamSettings.realitySettings.publicKey = searchParams.get("pbk") || "";
+                        streamSettings.realitySettings.shortId = searchParams.get("sid") || "";
+                    }
+                }
+
+                const transport = searchParams.get("type");
+                if (transport === "ws") {
+                    streamSettings.wsSettings = { "path": searchParams.get("path") || "/", "headers": { "Host": searchParams.get("host") || "" } };
+                } else if (transport === "grpc") {
+                    streamSettings.grpcSettings = { "serviceName": searchParams.get("serviceName") || "" };
+                }
+
+                return { "protocol": protocol, "settings": settings, "streamSettings": streamSettings };
+            } 
+            else if (link.startsWith("vmess://")) {
+                const decoded = atob(link.replace("vmess://", ""));
+                const obj = JSON.parse(decoded);
+                return {
+                    "protocol": "vmess",
+                    "settings": { "vnext": [{ "address": obj.add, "port": parseInt(obj.port), "users": [{ "id": obj.id, "alterId": parseInt(obj.aid || 0), "security": "auto" }] }] },
+                    "streamSettings": {
+                        "network": obj.net || "tcp",
+                        "security": obj.tls || "none",
+                        "wsSettings": obj.net === "ws" ? { "path": obj.path || "/", "headers": { "Host": obj.host || "" } } : undefined,
+                        "grpcSettings": obj.net === "grpc" ? { "serviceName": obj.path || "" } : undefined
+                    }
+                };
+            }
+        } catch(e) { return null; }
+        return null;
+    }
+
+    function copyText(elementId) {
+        const textEl = document.getElementById(elementId);
+        if(!textEl.value || textEl.value.startsWith("خطا")) return;
+        textEl.select();
+        navigator.clipboard.writeText(textEl.value);
+        
+        const btn = textEl.previousElementSibling;
+        const originalText = btn.innerText;
+        btn.innerText = "کپی شد! ✓";
+        btn.style.background = "#fff";
+        btn.style.color = "#000";
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = "rgba(255, 255, 255, 0.05)";
+            btn.style.color = "#fff";
+        }, 1500);
+    }
+</script>
+
+</body>
+</html>
