@@ -12,35 +12,29 @@
 
 ## پیش‌نیازها
 
-اگر نصب نباشند، `install.sh` و همچنین اولین اجرای `exrelay` خودشان نصب‌شان می‌کنند. سوال بله/خیر پرسیده نمی‌شود.
-
-| ابزار | کاربرد |
-|---|---|
-| python3 | منوی مدیریت |
-| curl و unzip و ca-certificates | دانلود نصب و تست |
-| Xray | پروسه رله |
-| systemd | سرویس `exrelay-xray` |
-| proxychains4 | رد کردن تست سرعت از SOCKS موقت |
-| speedtest-cli | پینگ، دانلود، آپلود |
-
-سیستم‌عامل هدف اوبونتو/دبیان است. رد‌هت، آلپاین و آرچ هم برای پکیج بیس پشتیبانی می‌شوند، ولی مسیر توصیه‌شده دبیان است.
-
-باید با کاربر root اجرا شود، چون پورت‌های زیر ۱۰۲۴، systemd و نصب پکیج لازم دارد.
 
 ## نصب
 
-اول این پوشه را در گیت‌هاب بگذارید. روی سرور ایران:
+```
+wget https://github.com/URT19/eXtreme-Dokodemo-door-Tunnel-Creator/raw/refs/heads/main/exrelay-2.0.0.zip
 
-|
-|---|---|
-| `parsers.py` | خواندن لینک |
-| `config_builder.py` | ساخت اینباند، redirect و `config.json` |
-| `store.py` | ذخیره سرورها |
-| `links.py` | لینک قابل‌دادن به کاربر |
-| `service.py` | Xray، systemd، پیش‌نیاز، apply |
-| `testing.py` | SOCKS موقت، myip.wtf، speedtest |
-| `ui.py` | منو |
-| `backup.py` | بکاپ |
+sudo mkdir -p /opt/exrelay/pkg
+
+sudo unzip exrelay-2.0.0.zip -d /opt/exrelay/pkg
+
+sudo chmod +x /opt/exrelay/pkg/exrelay.py
+
+sudo python3 /opt/exrelay/pkg/exrelay.py
+
+```
+
+اگه میخواید بصورت فایل اجرایی ساخته بشه، دستور زیر رو بزنید تا هر وقت exrelay رو اجرا کنید ، اسکریپت اجرا بشه
+
+```
+sudo ln -sf /opt/exrelay/pkg/exrelay.py /usr/local/bin/exrelay
+```
+
+
 
 ## حذف
 
