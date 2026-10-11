@@ -1,71 +1,148 @@
-# 🚀 Xray Multi-Channel Config Editor (Dynamic Tunneling Hub)
+# eXrelay
 
-<img width="1744" height="923" alt="image" src="https://github.com/user-attachments/assets/869207f0-1cbf-4768-b0a5-70941b2e9826" />
+eXrelay turns one middle server (usually a VPS in Iran) into a raw TCP/UDP port forward in front of one or more foreign Xray servers.
 
----
-
-<img width="510" height="317" alt="image" src="https://github.com/user-attachments/assets/2e61858b-70f7-4397-adb2-8e364c067341" />
-
----
-
-
-[Config Creator page ](https://extremedot.github.io/eXtreme-Dokodemo-door-Tunnel-Creator/)
-
-
----
-
+The middle server does **not** speak VLESS, VMess, Trojan or Shadowsocks. It copies bytes:
 
 ```
-curl -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/URT19/eXtreme-Dokodemo-door-Tunnel-Creator/refs/heads/main/ex-relay-manager.sh?$RANDOM" -o ex-relay-manager.sh
-chmod +x ex-relay-manager.sh
-mv ex-relay-manager.sh /usr/local/bin/eXrelayManager && chmod +x /usr/local/bin/eXrelayManager
+client  --protocol-->  Iran:listen_port  --raw TCP/UDP-->  foreign:remote_port
 ```
 
+Xray on the Iran host uses:
+
+- inbound `dokodemo-door` on the public listen port
+- outbound `freedom` with `settings.redirect = foreignHost:foreignPort`
+
+The share link you give users keeps the original UUID, password, SNI, Reality key, path and flow. Only the address and port change to the Iran server. Because the stream is not re-encoded, the foreign server still sees a normal client handshake.
+
+## Requirements
+
+Installed automatically by `install.sh` or the first `exrelay` run when they are missing:
+
+| Tool | Why |
+|---|---|
+| python3 | the menu |
+| curl, unzip, ca-certificates | downloads |
+| Xray | the relay process |
+| systemd | `exrelay-xray.service` |
+| proxychains4 | speed test through the temporary SOCKS client |
+| speedtest-cli | download / upload / ping |
+
+Test location data comes from `https://myip.wtf/json` only. `ipinfo.io` is not used.
+
+## Install
+
+Publish this folder to GitHub, then on the Iran server:
+
+```bash
+sudo GITHUB_REPO=yourname/exrelay bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourname/exrelay/main/install.sh)"
 ```
-eXrelayManager
+
+Or download the branch zip yourself and run the script that sits next to `exrelay/`:
+
+```bash
+sudo bash install.sh
 ```
 
----
+A direct zip URL also works:
 
+```bash
+sudo ZIP_URL=https://github.com/yourname/exrelay/archive/refs/heads/main.zip bash install.sh
+```
 
-یک ابزار تحت وب (Single Page Application) فوق‌العاده سبک، سریع و کاربردی برای **مدیریت، ادغام و ساخت همزمان کانفیگ‌های تانل مولتی‌سرور (تا ۱۰ سرور موازی)** برای هسته Xray/V2Ray بر پایه ساختار استاندارد لودر `conf.d`.
+The script copies the package to `/opt/exrelay/pkg`, installs missing packages and Xray, writes `/etc/systemd/system/exrelay-xray.service`, and links `/usr/local/bin/exrelay`.
 
-این ابزار به شما کمک می‌کند تا بدون نیاز به درگیر شدن با ساختارهای پیچیده JSON و خطاهای سینتکس، خروجی‌های معتبر و تفکیک‌شده برای فایل‌های `01_inbounds.json`، `02_outbounds.json` و `03_routing.json` سرور ایران خود تولید کنید.
+Open the menu:
 
----
+```bash
+sudo exrelay
+```
 
-## ✨ ویژگی‌های کلیدی (Key Features)
+## Example (fictional)
 
-* **⚡ پشتیبانی از ۱۰ سرور همزمان (۱۰ کانال مستقل):** مدیریت و کانفیگ ۱۰ تانل مختلف با ریجن‌ها و پورت‌های متفاوت در یک صفحه به صورت تب‌بندی شده (Tabs).
-* **🔗 مبدل هوشمند لینک به اوتباند (Link to Outbound Converter):** پشتیبانی از پارس و تبدیل مستقیم پروتکل‌های محبوب (`VLESS` ،`VMess` ،`Trojan` ،`Shadowsocks`) از فرمت لینک (URL) یا اشتراک به سورس استاندارد JSON خروجی Xray.
-* **🛡️ تفکیک خودکار و هوشمند پورت‌های ساکس (Socks Core Routing):** برای جلوگیری از نشت ترافیک (DNS/IP Leak)، ابزار به صورت خودکار برای هر پورت فوروارد شده یک پورت ساکس مِچ (`Port + 1`) ایجاد کرده و هر دو را در آرایه قوانین روتینگ (`inboundTag`) قفل می‌کند.
-* **🏷️ کامنت‌گذاری ساختاری و داخلی (Inline Internal Comments):** تزریق کامنت‌های قانونی در ابتدای بلاکِ آرایه‌ها بدون آسیب زدن به ساختار استاندارد فایل‌های JSON جهت ناوبری و عیب‌یابی سریع کانفیگ‌ها در سرور.
-* **🎨 طراحی مدرن با فونت زیبای وزیرمتن:** رابط کاربری دارک کاملاً ریسپانسیو، مجهز به دکمه‌های کپی سریع (One-click Copy) و بر پایه فونت فارسی Vazirmatn.
-* **🚫 بدون وابستگی (Zero Dependencies):** ساخته شده با HTML5، CSS3 و Pure JavaScript بدون نیاز به هیچ کتابخانه خارجی یا سرور بک‌اند (کاملاً کلاینت‌ساید و امن).
+Foreign server you were given. Nothing here is a real node:
 
----
+```text
+vless://aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee@203.0.113.50:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&fp=chrome&pbk=ExamplePublicKey_not_real_0123456789&sid=0123456789abcdef&type=tcp#Example-DE
+```
 
-## 📂 ساختار فایل‌های خروجی (Output Architecture)
+| Field | Value |
+|---|---|
+| Foreign address | `203.0.113.50` (documentation range) |
+| Foreign port | `443` |
+| Protocol | VLESS + Reality + Vision |
+| Iran public IP | `198.51.100.10` (documentation range) |
+| Listen port you choose | `8443` |
 
-این ابزار ساختار سنتی و شلوغ تک‌فایلی (`config.json`) را به معماری مدرن و ماژولار `conf.d` تبدیل می‌کند:
+In the menu: **1) Add relay**, paste the link, listen port `8443`, name `Example-DE`. Apply writes one `config.json` whose outbound is:
 
-1. **`01_inbounds.json`**: شامل پروتکل‌های `dokodemo-door` برای گوش دادن به پورت‌های فورواردی سرور ایران و پورت‌های `mixed` (ساکس/اتچمنت) کمکی.
-2. **`02_outbounds.json`**: شامل دیتای رمزنگاری شده خروجی پروتکل‌ها به همراه آدرس‌های پشت مرز، تنظیمات جریان (StreamSettings) مانند `gRPC` یا `WS` و پورت خروجی.
-3. **`03_routing.json`**: هدایت‌گر اصلی ترافیک؛ متصل‌کننده دقیق پورت‌های ورودی به ساب‌تانل‌های اختصاصی سرورهای خارج بدون تداخل ترافیکی.
+```json
+{
+  "tag": "out-Example-DE",
+  "protocol": "freedom",
+  "settings": { "redirect": "203.0.113.50:443" }
+}
+```
 
----
+The link to hand to users (same parameters, Iran address):
 
-## 🚀 نحوه استفاده (Quick Start)
+```text
+vless://aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee@198.51.100.10:8443?type=tcp&security=reality&sni=www.microsoft.com&fp=chrome&pbk=ExamplePublicKey_not_real_0123456789&sid=0123456789abcdef&flow=xtls-rprx-vision#Example-DE-via-IR
+```
 
-1. کد فایل `index.html` را دانلود کنید.
-2. آن را در مرورگر خود باز کنید (یا روی یک وب‌سرور/گیت‌هاب پیج هاست کنید).
-3. فایل‌های JSON فعلی سرور ایران خود را (در صورت وجود) در باکس‌های مبدا وارد کنید.
-4. وارد تب‌های سرور ۱ تا ۱۰ شوید، نام، پورت فوروارد و لینک تانل خارج را پیست کنید.
-5. خروجی‌های آماده شده در پایین صفحه را کپی کرده و در مسیر `/usr/local/etc/xray/conf.d/` سرور خود جایگزین کنید.
-6. دستور `systemctl restart xray` را اجرا کنید. تانل شما با موفقیت آپدیت شد!
+The client connects to `198.51.100.10:8443`. Iran forwards the TCP stream untouched to `203.0.113.50:443`. Reality is terminated only on the foreign server.
 
----
+## Menu
 
-## 🤝 مشارکت (Contributing)
+| Key | Action |
+|---|---|
+| 1 | Add a relay from a share link |
+| 2 | List relays, details, user link (`l1`), test (`t1`) |
+| 3 | Rename, change port, enable, replace link, delete |
+| 4 | Delete |
+| 5 | Print every enabled user link |
+| 6 | Rebuild `config.json` and restart |
+| 7 | systemctl start / stop / restart / test |
+| 8 | Backup and restore `/opt/exrelay` config and data |
+| 9 | Listen host, UDP, default port, public IP |
+| 10 | Test one foreign server |
+| 0 | Exit |
 
-از پیشنهادها، گزارش باگ‌ها و Pull Requestهای شما برای بهبود قابلیت‌های پارسر ابزار استقبال می‌شود.
+## Test a foreign server
+
+Option **10** starts a temporary Xray **client** (not the relay) on `127.0.0.1:18999` using the parsed protocol, then:
+
+1. **Connection + location** — `curl --socks5-hostname 127.0.0.1:18999 https://myip.wtf/json`  
+   Shows exit IP, city, country, ISP, hostname. An IP means the foreign node accepted the handshake.
+2. **Speed** — writes `/opt/exrelay/test/proxychains.conf` for that SOCKS port and runs  
+   `proxychains4 -f /opt/exrelay/test/proxychains.conf speedtest-cli --simple`  
+   `/etc/proxychains4.conf` is not modified.
+3. **Both.**
+
+If `proxychains4` or `speedtest-cli` is missing, the test screen can install them, and a normal `exrelay` start also installs missing prerequisites.
+
+## Files
+
+```
+/opt/exrelay/pkg/exrelay/     Python package
+/opt/exrelay/data/servers.json
+/opt/exrelay/data/settings.json
+/opt/exrelay/config/xray/config.json
+/opt/exrelay/backups/
+/opt/exrelay/test/            temporary client config and proxychains file
+/etc/systemd/system/exrelay-xray.service
+/usr/local/bin/exrelay
+```
+
+## Uninstall
+
+```bash
+sudo systemctl disable --now exrelay-xray
+sudo rm -f /etc/systemd/system/exrelay-xray.service /usr/local/bin/exrelay
+sudo systemctl daemon-reload
+sudo rm -rf /opt/exrelay
+```
+
+Xray itself is left installed. Remove it with the upstream script if you want: `bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove --purge`
+
+Persian documentation: [README-fa.md](README-fa.md).
