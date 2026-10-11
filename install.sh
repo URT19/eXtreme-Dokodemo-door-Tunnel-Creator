@@ -16,7 +16,7 @@ set -euo pipefail
 
 GITHUB_REPO="${GITHUB_REPO:-}"
 BRANCH="${BRANCH:-main}"
-ZIP_URL="${ZIP_URL:-}"
+ZIP_URL="https://github.com/URT19/eXtreme-Dokodemo-door-Tunnel-Creator/raw/refs/heads/main/exrelay-2.0.0.zip"
 INSTALL_ROOT="${INSTALL_ROOT:-/opt/exrelay/pkg}"
 
 if [[ "$(id -u)" -ne 0 ]]; then
