@@ -12,6 +12,9 @@
 
 ## پیش‌نیازها
 
+```
+apt install unzip wget curl speedtest-cli proxychains4 python3 -y
+```
 
 ## نصب
 
