@@ -19,9 +19,14 @@
 wget https://github.com/URT19/eXtreme-Dokodemo-door-Tunnel-Creator/raw/refs/heads/main/exrelay-2.0.0.zip
 
 sudo mkdir -p /opt/exrelay/pkg
+```
 
+```
 sudo unzip exrelay-2.0.0.zip -d /opt/exrelay/pkg
 
+```
+
+```
 sudo chmod +x /opt/exrelay/pkg/exrelay.py
 
 sudo python3 /opt/exrelay/pkg/exrelay.py
